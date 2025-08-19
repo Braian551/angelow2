@@ -11,13 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+     Schema::create('users', function (Blueprint $table) {
+            $table->string('id', 20)->primary();
+            $table->string('name', 100);
+            $table->string('email', 100)->unique();
+            $table->string('phone', 15)->nullable();
+            $table->enum('identification_type', ['cc', 'ce', 'ti', 'pasaporte'])->default('cc');
+            $table->string('identification_number', 20)->nullable();
+            $table->string('password', 255)->nullable();
+            $table->string('image', 255)->nullable();
+            $table->enum('role', ['customer', 'admin', 'delivery'])->default('customer');
+            $table->boolean('is_blocked')->default(false);
+            $table->datetime('last_access')->nullable();
+            $table->string('remember_token', 255)->nullable();
+            $table->datetime('token_expiry')->nullable();
             $table->timestamps();
         });
 
