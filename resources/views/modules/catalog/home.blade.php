@@ -53,12 +53,18 @@
                 <div class="hero-slide {{ $loop->first ? 'active' : '' }}" data-slide="{{ $index }}">
                     <img src="{{ asset($slider->image_path ?? 'images/hero-default.jpg') }}" alt="{{ $slider->title ?? 'Slide' }}">
                     <div class="hero-content">
-                        <h2>{{ $slider->title ?? 'Descubre la nueva colección' }}</h2>
+                        <h1>{{ $slider->title ?? 'Descubre la nueva colección' }}</h1>
                         @if (!empty($slider->subtitle))
                             <p>{{ $slider->subtitle }}</p>
                         @endif
                         @if (!empty($slider->button_link) && !empty($slider->button_text))
                             <a href="{{ $slider->button_link }}" class="btn">{{ $slider->button_text }}</a>
+                        @elseif (!empty($slider->link))
+                            {{-- If legacy `link` exists in DB but no button text, show default CTA text --}}
+                            <a href="{{ $slider->link }}" class="btn">Ver más</a>
+                        @else
+                            {{-- Default fallback to tienda page for missing slider CTAs --}}
+                            <a href="{{ url('/tienda') }}" class="btn">Ver más</a>
                         @endif
                     </div>
                 </div>
@@ -66,9 +72,9 @@
                 <div class="hero-slide active">
                     <img src="{{ asset('images/legacy/default-hero.jpg') }}" alt="Colección Angelow">
                     <div class="hero-content">
-                        <h2>Moda infantil premium</h2>
+                        <h1>Moda infantil premium</h1>
                         <p>Prendas cómodas y seguras para los más pequeños</p>
-                        <a href="{{ url('/tienda/productos') }}" class="btn">Explorar colección</a>
+                        <a href="{{ url('/tienda') }}" class="btn">Ver más</a>
                     </div>
                 </div>
             @endforelse
@@ -189,7 +195,7 @@
     @if ($promoBanner)
         <!-- Use only solid color for promo banner (no background-image) -->
         <section class="promo-banner">
-            <div class="promo-content">
+                <div class="promo-content">
                 @if (!empty($promoBanner->icon))
                     <i class="fas {{ $promoBanner->icon }} fa-3x"></i>
                 @endif
