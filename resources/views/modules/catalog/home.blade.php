@@ -187,17 +187,8 @@
     </section>
 
     @if ($promoBanner)
-        @php
-            $promoClasses = 'promo-banner' . (!empty($promoBanner->image) ? ' has-image' : '');
-            $promoStyle = !empty($promoBanner->image)
-                ? '--promo-bg-image: url(' . asset($promoBanner->image) . ');'
-                : null;
-            $promoStyleAttr = $promoStyle ? 'style="' . e($promoStyle) . '"' : '';
-        @endphp
-        <section class="{{ $promoClasses }}" {!! $promoStyleAttr !!}>
-            @if (!empty($promoBanner->image))
-                <div class="promo-image"></div>
-            @endif
+        <!-- Use only solid color for promo banner (no background-image) -->
+        <section class="promo-banner">
             <div class="promo-content">
                 @if (!empty($promoBanner->icon))
                     <i class="fas {{ $promoBanner->icon }} fa-3x"></i>
