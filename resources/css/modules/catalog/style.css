@@ -128,6 +128,7 @@ button {
   color: var(--text-dark);
   position: relative;
   text-align: center;
+  font-weight: 700; /* Ensure bold like legacy index.css */
 }
 
 .section-title::after {
@@ -500,6 +501,7 @@ button {
   font-size: 4rem;
   margin-bottom: 1.5rem;
   animation: slideInLeft 0.8s ease;
+  font-weight: 700; /* Make hero titles bold */
 }
 
 .hero-content p {
@@ -1238,3 +1240,6 @@ button {
     font-size: 2rem;
   }
 }
+
+/* Heading normalization was removed — prefer project-level base styles
+   or use specific heading classes where needed to keep HTML semantics. */
