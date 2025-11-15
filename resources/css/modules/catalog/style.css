@@ -824,6 +824,7 @@ button {
   color: var(--primary-dark);
   margin-bottom: 1.5rem;
   animation: fadeIn 1s ease;
+  font-weight: 700; /* ensure promo headings are bold like hero */
 }
 
 .promo-content p {

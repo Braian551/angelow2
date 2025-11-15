@@ -4,3 +4,35 @@
 /* Keep other site base styles here but avoid forcing heading normalization.
    Tailwind's preflight can be disabled instead in tailwind.config.js, so we
    don't override UA heading behavior globally. */
+
+/* ===== Heading levels h3-h6 styles (site defaults) ===== */
+/* Provide consistent sizes/weights for headings used across the site
+   without re-introducing global preflight resets for all headings. */
+@layer base {
+   h3 {
+      font-size: 2.0rem; /* default for section subtitles */
+      margin-bottom: 1.6rem;
+      line-height: 1.2;
+      font-weight: 600;
+      color: var(--text-dark, #111111);
+   }
+
+   h4 {
+      font-size: 1.6rem;
+      margin-bottom: 1.2rem;
+      font-weight: 600;
+      line-height: 1.25;
+   }
+
+   h5 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+   }
+
+   h6 {
+      font-size: 1.2rem;
+      margin-bottom: 0.8rem;
+      font-weight: 600;
+   }
+}
