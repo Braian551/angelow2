@@ -60,6 +60,7 @@ Cada módulo define su propio namespace (`Angelow\Modules\Catalog`), archivos de
 - **Migrations/Seeders**: cada módulo aporta migraciones propias con prefijo (`2025_11_15_000000_create_catalog_products_table.php`).
 - **DTOs/Actions**: usar `app/Shared/Application/Commands`, `app/Shared/Infrastructure/Bus` para orquestar casos de uso.
 - **Integración temporal**: mientras se migra, exponer APIs en Laravel que consuman las tablas existentes (`angelow` DB) para no duplicar datos.
+- **Documentación auxiliar**: consulta `docs/LEGACY_MAPPING.md` para el inventario completo y `docs/ASSETS_STRUCTURE.md` para el plan de assets.
 
 ## 4. Fases de migración sugeridas
 
@@ -113,6 +114,7 @@ angelow2/
 			Content/
 			Support/
 		Shared/
+				support.php
 			Domain/
 			Application/
 			Infrastructure/
