@@ -8,13 +8,8 @@
 
 @push('styles')
     @php
-        $catalogCss = [
-            'resources/css/modules/catalog/style.css',
-            'resources/css/modules/catalog/productos.css',
-            'resources/css/modules/catalog/announcements.css',
-            'resources/css/modules/catalog/notificacion.css',
-            'resources/css/modules/catalog/index.css',
-        ];
+        // Vite is configured with a single catalog entry `index.css` — use it to avoid manifest errors
+        $catalogCss = ['resources/css/modules/catalog/index.css'];
     @endphp
     @if ($catalogViteReady)
         @vite($catalogCss)
