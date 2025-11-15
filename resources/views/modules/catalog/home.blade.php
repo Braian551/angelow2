@@ -20,6 +20,19 @@
     @if ($catalogViteReady)
         @vite(['resources/js/modules/catalog/index.js'])
     @endif
+    @php
+        $catalogRuntimeConfig = [
+            'isAuthenticated' => auth()->check(),
+            'wishlist' => [
+                'add' => url('/api/wishlist/add'),
+                'remove' => url('/api/wishlist/remove'),
+                'list' => url('/api/wishlist'),
+            ],
+            'fallbackImage' => asset('images/default-product.jpg'),
+        ];
+
+        echo '<script>window.AngelowCatalog = ' . json_encode($catalogRuntimeConfig, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ';</script>';
+    @endphp
 @endpush
 
 @section('content')
@@ -75,18 +88,22 @@
         <h2 class="section-title">Explora nuestras categorías</h2>
         <div class="categories-grid">
             @forelse ($categories as $category)
-                <a href="{{ url('/tienda/productos?category=' . $category->slug) }}" class="category-card">
-                    <div class="category-content">
-                        <h3>{{ $category->name }}</h3>
-                        <p>Descubre lo mejor en {{ strtolower($category->name) }}</p>
-                    </div>
+                <a href="{{ url('/tienda/productos?category=' . $category->id) }}" class="category-card">
+                    @if (!empty($category->image_path))
+                        <img src="{{ asset($category->image_path) }}" alt="{{ $category->name }}">
+                    @else
+                        <img src="{{ asset('images/default-product.jpg') }}" alt="{{ $category->name }}">
+                    @endif
+                    <h3>{{ $category->name }}</h3>
                 </a>
             @empty
                 <a href="#" class="category-card">
-                    <div class="category-content">
-                        <h3>Recién nacidos</h3>
-                        <p>Prendas suaves y cómodas para el primer año</p>
-                    </div>
+                    <img src="{{ asset('images/default-product.jpg') }}" alt="Vestidos">
+                    <h3>Vestidos</h3>
+                </a>
+                <a href="#" class="category-card">
+                    <img src="{{ asset('images/default-product.jpg') }}" alt="Conjuntos">
+                    <h3>Conjuntos</h3>
                 </a>
             @endforelse
         </div>
@@ -100,30 +117,71 @@
 
         <div class="products-grid">
             @forelse ($products as $product)
+                @php
+                    $hasDiscount = $product->compare_price && $product->compare_price > $product->price;
+                    $discount = $hasDiscount
+                        ? round((($product->compare_price - $product->price) / $product->compare_price) * 100)
+                        : null;
+                @endphp
                 <article class="product-card" data-product-id="{{ $product->id }}">
                     @if ($product->is_featured)
                         <div class="product-badge">Destacado</div>
+                    @elseif ($hasDiscount && $discount)
+                        <div class="product-badge sale">{{ $discount }}% OFF</div>
                     @endif
 
-                    <a href="{{ url('/producto/' . $product->slug) }}" class="product-image">
-                        <img src="{{ asset($product->main_image ?? 'images/legacy/default-product.jpg') }}" alt="{{ $product->name }}" loading="lazy">
+                    <button class="wishlist-btn" aria-label="Añadir a favoritos" data-product-id="{{ $product->id }}">
+                        <i class="far fa-heart"></i>
+                    </button>
+
+                    <a href="{{ url('/producto/' . $product->slug) }}" class="product-image loading">
+                        <img src="{{ asset($product->main_image ?? 'images/default-product.jpg') }}" alt="{{ $product->name }}">
                     </a>
 
                     <div class="product-info">
-                        <span class="product-category">{{ $product->category_name ?? 'Colección' }}</span>
+                        <span class="product-category">{{ $product->category_name ?? 'Sin categoría' }}</span>
                         <h3 class="product-title">
                             <a href="{{ url('/producto/' . $product->slug) }}">{{ $product->name }}</a>
                         </h3>
+
+                        <div class="product-rating">
+                            <div class="stars">
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <span class="rating-count">(0)</span>
+                        </div>
+
                         <div class="product-price">
                             <span class="current-price">${{ number_format($product->price, 0, ',', '.') }}</span>
-                            @if ($product->compare_price && $product->compare_price > $product->price)
+                            @if ($hasDiscount)
                                 <span class="original-price">${{ number_format($product->compare_price, 0, ',', '.') }}</span>
                             @endif
                         </div>
+
+                        <a href="{{ url('/producto/' . $product->slug) }}" class="view-product-btn">
+                            <i class="fas fa-eye"></i> Ver producto
+                        </a>
                     </div>
                 </article>
             @empty
-                <div class="product-card shimmer"></div>
+                @for ($i = 0; $i < 6; $i++)
+                    <div class="product-card shimmer">
+                        <div class="shimmer-wishlist"></div>
+                        <div class="shimmer-image"></div>
+                        <div class="shimmer-info">
+                            <div class="shimmer-category"></div>
+                            <div class="shimmer-title"></div>
+                            <div class="shimmer-title"></div>
+                            <div class="shimmer-rating"></div>
+                            <div class="shimmer-price"></div>
+                            <div class="shimmer-button"></div>
+                        </div>
+                    </div>
+                @endfor
             @endforelse
         </div>
     </section>
@@ -159,23 +217,27 @@
         <h2 class="section-title">Nuestras colecciones</h2>
         <div class="collections-grid">
             @forelse ($collections as $collection)
-                <article class="collection-card">
-                    <div class="collection-content">
+                <a href="{{ url('/tienda/productos?collection=' . $collection->id) }}" class="collection-card">
+                    @if (!empty($collection->image_path))
+                        <img src="{{ asset($collection->image_path) }}" alt="{{ $collection->name }}">
+                    @else
+                        <img src="{{ asset('images/default-product.jpg') }}" alt="{{ $collection->name }}">
+                    @endif
+                    <div class="collection-overlay">
                         <h3>{{ $collection->name }}</h3>
                         @if (!empty($collection->description))
                             <p>{{ \Illuminate\Support\Str::limit($collection->description, 120) }}</p>
                         @endif
-                        <a href="{{ url('/colecciones/' . $collection->slug) }}" class="btn-outline">Ver colección</a>
                     </div>
-                </article>
+                </a>
             @empty
-                <article class="collection-card">
-                    <div class="collection-content">
-                        <h3>Colección Primavera</h3>
-                        <p>Prendas ligeras y coloridas para la nueva temporada.</p>
-                        <a href="{{ url('/colecciones') }}" class="btn-outline">Ver colección</a>
+                <a href="#" class="collection-card">
+                    <img src="{{ asset('images/default-product.jpg') }}" alt="Colección Playa">
+                    <div class="collection-overlay">
+                        <h3>Colección Playa</h3>
+                        <p>Prendas frescas para los días soleados.</p>
                     </div>
-                </article>
+                </a>
             @endforelse
         </div>
     </section>

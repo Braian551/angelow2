@@ -23,6 +23,10 @@ class HomeController extends Controller
                 ->where('is_active', 1)
                 ->orderBy('order_position')
                 ->get()
+                ->map(function ($slider) {
+                    $slider->image_path = $this->normalizeLegacyPath($slider->image_path ?? $slider->image ?? null);
+                    return $slider;
+                })
             : collect();
 
         $categories = Schema::hasTable('categories')
@@ -32,6 +36,10 @@ class HomeController extends Controller
                 ->orderByDesc('created_at')
                 ->limit(4)
                 ->get()
+                ->map(function ($category) {
+                    $category->image_path = $this->normalizeLegacyPath($category->image ?? $category->banner ?? null);
+                    return $category;
+                })
             : collect();
 
         $products = $this->resolveFeaturedProducts();
@@ -42,6 +50,10 @@ class HomeController extends Controller
                 ->orderByDesc('launch_date')
                 ->limit(3)
                 ->get()
+                ->map(function ($collection) {
+                    $collection->image_path = $this->normalizeLegacyPath($collection->image ?? null);
+                    return $collection;
+                })
             : collect();
 
         return view('modules.catalog.home', [
@@ -113,33 +125,54 @@ class HomeController extends Controller
 
         // Normalize paths returned by legacy DB to use the public uploads path
         foreach ($products as $idx => $product) {
-            if (! empty($product->main_image)) {
-                // Legacy entries sometimes include 'uploads/legacy/...' or full URLs.
-                $path = $product->main_image;
-
-                // Remove full base URL if present
-                $baseUrl = url('/');
-                if (str_starts_with($path, $baseUrl)) {
-                    $path = substr($path, strlen($baseUrl) + 1);
-                }
-
-                // Map 'uploads/legacy/productos/...' -> 'uploads/productos/...'
-                if (str_starts_with($path, 'uploads/legacy/')) {
-                    $path = preg_replace('/^uploads\/legacy\//', 'uploads/', $path);
-                }
-
-                // If the path exists under public, keep it as-is. Otherwise try storage path.
-                if (! file_exists(public_path($path))) {
-                    $storagePath = 'storage/' . ltrim($path, '/');
-                    if (file_exists(public_path($storagePath))) {
-                        $path = $storagePath;
-                    }
-                }
-
-                $products[$idx]->main_image = $path;
-            }
+            $products[$idx]->main_image = $this->normalizeLegacyPath($product->main_image ?? null);
         }
 
         return $products;
+    }
+
+    private function normalizeLegacyPath(?string $path): ?string
+    {
+        if ($path === null) {
+            return null;
+        }
+
+        $path = trim(str_replace('\\', '/', $path));
+        if ($path === '') {
+            return null;
+        }
+
+        $baseUrl = rtrim(url('/'), '/');
+        if (str_starts_with($path, $baseUrl)) {
+            $path = ltrim(substr($path, strlen($baseUrl)), '/');
+        }
+
+        $leadingSegments = [
+            'public/',
+            'public_html/',
+            'storage/app/public/',
+            'public/storage/',
+        ];
+
+        foreach ($leadingSegments as $segment) {
+            if (str_starts_with($path, $segment)) {
+                $path = substr($path, strlen($segment));
+                break;
+            }
+        }
+
+        if (str_starts_with($path, 'uploads/legacy/')) {
+            $path = preg_replace('/^uploads\/legacy\//', 'uploads/', $path);
+        }
+
+        $normalizedPath = ltrim($path, '/');
+        if (! file_exists(public_path($normalizedPath))) {
+            $storagePath = 'storage/' . $normalizedPath;
+            if (file_exists(public_path($storagePath))) {
+                $normalizedPath = $storagePath;
+            }
+        }
+
+        return $normalizedPath;
     }
 }
