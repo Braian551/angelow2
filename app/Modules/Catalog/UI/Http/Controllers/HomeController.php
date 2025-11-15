@@ -85,7 +85,7 @@ class HomeController extends Controller
             return [];
         }
 
-        return DB::select(
+        $products = DB::select(
             <<<SQL
             SELECT
                 p.id,
@@ -110,5 +110,36 @@ class HomeController extends Controller
             LIMIT 6
             SQL
         );
+
+        // Normalize paths returned by legacy DB to use the public uploads path
+        foreach ($products as $idx => $product) {
+            if (! empty($product->main_image)) {
+                // Legacy entries sometimes include 'uploads/legacy/...' or full URLs.
+                $path = $product->main_image;
+
+                // Remove full base URL if present
+                $baseUrl = url('/');
+                if (str_starts_with($path, $baseUrl)) {
+                    $path = substr($path, strlen($baseUrl) + 1);
+                }
+
+                // Map 'uploads/legacy/productos/...' -> 'uploads/productos/...'
+                if (str_starts_with($path, 'uploads/legacy/')) {
+                    $path = preg_replace('/^uploads\/legacy\//', 'uploads/', $path);
+                }
+
+                // If the path exists under public, keep it as-is. Otherwise try storage path.
+                if (! file_exists(public_path($path))) {
+                    $storagePath = 'storage/' . ltrim($path, '/');
+                    if (file_exists(public_path($storagePath))) {
+                        $path = $storagePath;
+                    }
+                }
+
+                $products[$idx]->main_image = $path;
+            }
+        }
+
+        return $products;
     }
 }

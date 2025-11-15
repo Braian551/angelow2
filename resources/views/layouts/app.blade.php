@@ -7,7 +7,7 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-pPd6z5Yucs5cjox96D65gis6pZeRAEIJ5zsxFrqxbPjzvY4xXHzkwmo7aXstixSeKfeNHYsYkP82afgAvX8V7w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- Font Awesome is bundled via Vite; remove CDN to avoid integrity mismatch in dev. --}}
     @php
         $baseEntries = [
             'resources/css/app.css',
@@ -38,6 +38,8 @@
     <main>
         @yield('content')
     </main>
+
+    @include('layouts.partials.footer')
 
     @stack('scripts')
 </body>
