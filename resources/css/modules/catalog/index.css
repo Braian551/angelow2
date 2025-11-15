@@ -1,1 +1,4 @@
-/* Catálogo: estilos específicos del módulo */
+@import './style.css';
+@import './productos.css';
+@import './announcements.css';
+@import './notificacion.css';

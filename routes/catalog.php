@@ -1,9 +1,10 @@
 <?php
 
+use App\Modules\Catalog\UI\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('catalog')
-    ->name('catalog.')
+Route::name('catalog.')
     ->group(function (): void {
-        // TODO: add catalog routes
+        Route::get('/', HomeController::class)->name('home');
+        // Otros endpoints del catálogo irán aquí
     });

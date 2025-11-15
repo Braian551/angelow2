@@ -1,1 +1,3 @@
-/* Clientes: estilos para perfiles, auth y wishlist */
+@import './form.css';
+@import './formlogin.css';
+@import './alerta.css';

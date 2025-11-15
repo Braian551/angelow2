@@ -13,14 +13,31 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The primary key is a UUID string in the legacy schema.
+     */
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'id',
         'name',
         'email',
+        'phone',
+        'identification_type',
+        'identification_number',
+        'image',
         'password',
+        'role',
+        'remember_token',
+        'token_expiry',
+        'last_access',
+        'is_blocked',
     ];
 
     /**
@@ -42,6 +59,11 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'token_expiry' => 'datetime',
+            'last_access' => 'datetime',
+            'is_blocked' => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
