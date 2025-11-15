@@ -617,6 +617,7 @@ button {
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   color: white;
   font-size: 2rem;
+  font-weight: 700; /* bold overlay title like legacy site */
 }
 
 /* ===== PRODUCTOS DESTACADOS ===== */
@@ -891,6 +892,14 @@ button {
 .collection-overlay h3 {
   font-size: 2.4rem;
   margin-bottom: 1rem;
+  color: white;
+  font-weight: 700;
+}
+
+.collection-overlay p {
+  font-size: 1.6rem;
+  margin: 0;
+  opacity: 0.95;
 }
 
 /* ===== TESTIMONIOS ===== */
